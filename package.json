@@ -1,12 +1,15 @@
 {
   "name": "weekly-report-dashboard",
   "version": "1.0.0",
+  "description": "Full-stack weekly report generator and team dashboard",
   "private": true,
   "scripts": {
     "dev:frontend": "pnpm --dir frontend dev",
     "dev:backend": "pnpm --dir backend start:dev",
     "build": "pnpm --recursive build",
     "lint": "pnpm --recursive lint",
-    "test": "pnpm --dir backend test"
-  }
+    "test:backend": "pnpm --dir backend test",
+    "test:e2e": "pnpm --dir backend test:e2e"
+  },
+  "packageManager": "pnpm@12.4.1"
 }
