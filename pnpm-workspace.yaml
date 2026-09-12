@@ -2,5 +2,8 @@ packages:
   - "frontend"
   - "backend"
 allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
   '@scarf/scarf': false
+  prisma: true
   unrs-resolver: false
