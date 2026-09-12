@@ -1,4 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test, type TestingModule } from '@nestjs/testing';
+
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -14,9 +15,13 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('health', () => {
+    it('should return a healthy API status', () => {
+      const response = appController.getHealth();
+
+      expect(response.status).toBe('ok');
+      expect(response.service).toBe('Weekly Report Dashboard API');
+      expect(response.timestamp).toBeDefined();
     });
   });
 });
