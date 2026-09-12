@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: weekly_report_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: weekly_user
+      POSTGRES_PASSWORD: weekly_password
+      POSTGRES_DB: weekly_reports
+    ports:
+      - "5440:5432"
+    volumes:
+      - weekly_report_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U weekly_user -d weekly_reports"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  weekly_report_postgres_data:
