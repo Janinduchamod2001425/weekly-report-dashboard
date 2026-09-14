@@ -1,4 +1,5 @@
-import type { ReportStatus } from "@/components/reports/report-status-badge";
+export type ReportStatus =
+  "DRAFT" | "SUBMITTED" | "NEEDS_CORRECTION" | "APPROVED";
 
 export interface ProjectSummary {
   id: string;
@@ -156,7 +157,7 @@ export interface ReportReviewAction {
     id: string;
     firstName: string;
     lastName: string;
-    email: string;
+    email?: string;
   };
 }
 
@@ -189,3 +190,39 @@ export interface ManagerReportDetail {
   links: ReportLink[];
   versions: ReportVersion[];
 }
+
+export interface MyReportListItem {
+  id: string;
+  weekStart: string;
+  weekEnd: string;
+  status: ReportStatus;
+  notes: string | null;
+  latestReviewerComment: string | null;
+  submittedAt: string | null;
+  approvedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  project: {
+    id: string;
+    name: string;
+    color: string | null;
+  };
+  _count: {
+    tasks: number;
+    blockers: number;
+    achievements: number;
+    versions: number;
+  };
+}
+
+export interface MyReportsResponse {
+  data: MyReportListItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export type MyReportDetail = Omit<ManagerReportDetail, "author">;
