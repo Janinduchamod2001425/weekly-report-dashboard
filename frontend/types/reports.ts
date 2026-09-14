@@ -226,3 +226,26 @@ export interface MyReportsResponse {
 }
 
 export type MyReportDetail = Omit<ManagerReportDetail, "author">;
+
+export interface TeamMemberProjectMembership {
+  project: Project;
+}
+
+export interface TeamMemberDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: "TEAM_MEMBER" | "MANAGER" | "ADMIN";
+  jobTitle: string | null;
+  avatarUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+  manager: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+  projectMemberships: TeamMemberProjectMembership[];
+}
