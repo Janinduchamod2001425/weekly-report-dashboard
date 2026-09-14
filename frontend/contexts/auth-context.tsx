@@ -11,7 +11,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-import { apiRequest, ApiError } from "@/lib/api";
+import { ApiError, apiRequest } from "@/lib/api";
 import type { AuthenticatedUser } from "@/types/auth";
 
 interface LoginInput {
@@ -61,7 +61,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
-      const response = await apiRequest<CurrentUserResponse>("/auth/me");
+      const response = await apiRequest<CurrentUserResponse>("/auth/me", {
+        method: "GET",
+        cache: "no-store",
+      });
 
       setUser(response.user);
     } catch (error) {
@@ -72,55 +75,86 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.error("Unable to retrieve authenticated user:", error);
 
-      setUser(null);
+      throw error;
     }
   }, []);
 
   useEffect(() => {
+    let active = true;
+
     async function initializeAuthentication() {
       try {
-        await refreshUser();
+        const response = await apiRequest<CurrentUserResponse>("/auth/me", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (active) {
+          setUser(response.user);
+        }
+      } catch (error) {
+        if (error instanceof ApiError && error.status !== 401) {
+          console.error("Unable to initialize authentication:", error);
+        }
+
+        if (active) {
+          setUser(null);
+        }
       } finally {
-        setIsLoading(false);
+        if (active) {
+          setIsLoading(false);
+        }
       }
     }
 
     void initializeAuthentication();
-  }, [refreshUser]);
 
-  async function login(input: LoginInput): Promise<AuthenticatedUser> {
-    const response = await apiRequest<AuthResponse>("/auth/login", {
-      method: "POST",
-      body: input,
-    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-    setUser(response.user);
+  const login = useCallback(
+    async (input: LoginInput): Promise<AuthenticatedUser> => {
+      const response = await apiRequest<AuthResponse>("/auth/login", {
+        method: "POST",
+        body: input,
+        cache: "no-store",
+      });
 
-    return response.user;
-  }
+      setUser(response.user);
 
-  async function register(input: RegisterInput): Promise<AuthenticatedUser> {
-    const response = await apiRequest<AuthResponse>("/auth/register", {
-      method: "POST",
-      body: input,
-    });
+      return response.user;
+    },
+    [],
+  );
 
-    setUser(response.user);
+  const register = useCallback(
+    async (input: RegisterInput): Promise<AuthenticatedUser> => {
+      const response = await apiRequest<AuthResponse>("/auth/register", {
+        method: "POST",
+        body: input,
+        cache: "no-store",
+      });
 
-    return response.user;
-  }
+      setUser(response.user);
 
-  async function logout(): Promise<void> {
+      return response.user;
+    },
+    [],
+  );
+
+  const logout = useCallback(async () => {
     try {
       await apiRequest<{ message: string }>("/auth/logout", {
         method: "POST",
+        cache: "no-store",
       });
     } finally {
       setUser(null);
       router.replace("/login");
-      router.refresh();
     }
-  }
+  }, [router]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -132,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       refreshUser,
     }),
-    [user, isLoading, refreshUser],
+    [user, isLoading, login, register, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
