@@ -56,7 +56,6 @@ export default function LoginPage() {
       });
 
       router.replace(getRoleHomePath(user));
-      router.refresh();
     } catch (error) {
       toast.error("Login failed", {
         description:
