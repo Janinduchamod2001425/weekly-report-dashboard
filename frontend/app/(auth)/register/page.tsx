@@ -73,7 +73,6 @@ export default function RegisterPage() {
       toast.success("Account created successfully");
 
       router.replace(getRoleHomePath(user));
-      router.refresh();
     } catch (error) {
       toast.error("Registration failed", {
         description:
