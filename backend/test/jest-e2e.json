@@ -9,7 +9,7 @@
       "ts-jest",
       {
         "useESM": true,
-        "tsconfig": "<rootDir>/tsconfig.json"
+        "tsconfig": "<rootDir>/test/tsconfig.e2e.json"
       }
     ]
   },
