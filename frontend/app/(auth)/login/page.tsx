@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  EyeOff,
+  LoaderCircle,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -33,6 +39,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [showDemoAccounts, setShowDemoAccounts] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -77,16 +84,16 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="border-0 shadow-none">
-      <CardHeader className="px-0">
-        <CardTitle className="text-3xl">Welcome back</CardTitle>
+    <Card className="w-full max-w-md border-0 shadow-none">
+      <CardHeader>
+        <CardTitle className="text-3xl tracking-tight">Welcome back</CardTitle>
 
         <CardDescription>
           Sign in to manage weekly reports and team activity.
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6 px-0">
+      <CardContent className="space-y-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="email">Email address</Label>
@@ -107,13 +114,28 @@ export default function LoginPage() {
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
 
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Enter your password"
-              {...register("password")}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                className="pr-10"
+                {...register("password")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
 
             {errors.password && (
               <p className="text-sm text-destructive">
@@ -123,7 +145,9 @@ export default function LoginPage() {
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && <LoaderCircle className="size-4 animate-spin" />}
+            {isSubmitting && (
+              <LoaderCircle className="mr-2 size-4 animate-spin" />
+            )}
             Sign in
           </Button>
         </form>
@@ -132,41 +156,49 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setShowDemoAccounts((current) => !current)}
-            className="text-sm font-medium"
+            className="flex w-full items-center justify-between text-sm font-medium hover:underline"
           >
-            {showDemoAccounts ? "Hide" : "Show"} demo accounts
+            <span>{showDemoAccounts ? "Hide" : "Show"} demo accounts</span>
+            {showDemoAccounts ? (
+              <ChevronUp className="size-4" />
+            ) : (
+              <ChevronDown className="size-4" />
+            )}
           </button>
 
           {showDemoAccounts && (
-            <div className="mt-4 space-y-2 text-sm">
+            <div className="mt-4 space-y-3 text-sm">
               <button
                 type="button"
-                className="block text-left text-muted-foreground hover:text-foreground"
+                className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() =>
                   useDemoAccount("manager@weeklyreport.dev", "Manager@123")
                 }
               >
-                Manager: manager@weeklyreport.dev
+                <span className="font-medium text-foreground">Manager:</span>{" "}
+                manager@weeklyreport.dev
               </button>
 
               <button
                 type="button"
-                className="block text-left text-muted-foreground hover:text-foreground"
+                className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() =>
                   useDemoAccount("kasun@weeklyreport.dev", "Member@123")
                 }
               >
-                Member: kasun@weeklyreport.dev
+                <span className="font-medium text-foreground">Member:</span>{" "}
+                kasun@weeklyreport.dev
               </button>
 
               <button
                 type="button"
-                className="block text-left text-muted-foreground hover:text-foreground"
+                className="block w-full text-left text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() =>
                   useDemoAccount("admin@weeklyreport.dev", "Admin@123")
                 }
               >
-                Admin: admin@weeklyreport.dev
+                <span className="font-medium text-foreground">Admin:</span>{" "}
+                admin@weeklyreport.dev
               </button>
             </div>
           )}
