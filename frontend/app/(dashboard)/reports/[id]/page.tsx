@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/table";
 import { ApiError, apiRequest } from "@/lib/api";
 import type { MyReportDetail, ReportVersion } from "@/types/reports";
+import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 
 function formatDate(value: string): string {
   return format(new Date(value), "dd MMM yyyy");
@@ -188,6 +189,7 @@ export default function MyReportDetailPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitConfirmationOpen, setSubmitConfirmationOpen] = useState(false);
 
   const loadReport = useCallback(async () => {
     if (!reportId) {
@@ -234,16 +236,8 @@ export default function MyReportDetailPage() {
     );
   }, [report]);
 
-  async function submitReport() {
+  async function submitReport(): Promise<void> {
     if (!reportId || !report || !canEdit) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      "Submit this weekly report for manager review? You will not be able to edit it while it is under review.",
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -258,6 +252,7 @@ export default function MyReportDetailPage() {
         description: "Your manager can now review this report.",
       });
 
+      setSubmitConfirmationOpen(false);
       await loadReport();
     } catch (error) {
       toast.error("Unable to submit the report", {
@@ -356,7 +351,7 @@ export default function MyReportDetailPage() {
             <Button
               type="button"
               disabled={isSubmitting}
-              onClick={() => void submitReport()}
+              onClick={() => setSubmitConfirmationOpen(true)}
             >
               {isSubmitting ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -789,6 +784,21 @@ export default function MyReportDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmationDialog
+        open={submitConfirmationOpen}
+        onOpenChange={(open) => {
+          if (!isSubmitting) {
+            setSubmitConfirmationOpen(open);
+          }
+        }}
+        title="Submit weekly report?"
+        description="This report will be sent to your manager for review. You will not be able to edit it until it is approved or returned for corrections."
+        confirmLabel="Submit report"
+        variant="default"
+        isLoading={isSubmitting}
+        onConfirm={() => void submitReport()}
+      />
     </div>
   );
 }
